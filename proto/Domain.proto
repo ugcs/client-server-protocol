@@ -1,0 +1,1609 @@
+syntax = "proto2";
+
+option java_package = "com.ugcs.ucs.proto";
+option java_outer_classname = "DomainProto";
+option (ugcs_domain_package) = "com.ugcs.ucs.domain";
+option (ugcs_assembler_class_name) = "Transformations";
+option (ugcs_assembler_class_package) = "com.ugcs.ucs.proto";
+
+import "Options.proto";
+
+//*****************************************************************************
+// Enums
+//*****************************************************************************
+
+enum RouteProcessingStatus {
+	RPS_MODIFIED = 0;		// The new / modified route segment.
+	RPS_INVALID = 1;		// The route segment is incorrect.
+	RPS_MARKED = 2;			// The route segment is marked (defines all its basic points).
+	RPS_PROCESSED = 3;		// The route segment is fully processed (contains all commands).
+}
+
+enum UserRole {
+	UR_ADMINISTRATOR = 0;
+	UR_OPERATOR = 1;
+}
+
+enum ObjectOrigin {
+	OO_USER = 0;
+	OO_SYSTEM = 1;
+}
+
+enum AltitudeType {
+	AT_WGS84 = 0;
+	AT_AGL = 1;
+}
+
+enum AltitudeFrame {
+	AF_WGS84 = 0;
+	AF_AGL = 1;
+	AF_RANGEFINDER = 2;
+}
+
+enum ActionExecution {
+	AE_ONLY_AT_START = 0;
+	AE_ACTIONS_EVERY_POINT = 1;
+	AE_ACTIONS_ON_FORWARD_PASSES = 2;
+}
+
+enum FacadeScanPattern {
+	FSP_VERTICAL = 0;
+	FSP_HORIZONTAL = 1;
+}
+
+enum FigureType {
+	FT_POINT = 0;
+	FT_POLYGON = 1;
+	FT_CIRCLE = 2;
+	FT_EIGHT_CURVE = 3;
+	FT_TAKEOFF_POINT = 4;
+	FT_LANDING_POINT = 5;
+	FT_POLYLINE = 6;
+}
+
+enum ParameterType {
+	PT_STRING = 0;
+	PT_INTEGER = 1;
+	PT_DOUBLE = 2;
+	PT_BOOLEAN = 3;
+	PT_SELECTION = 4;
+}
+
+enum VehicleType {
+	VT_FIXED_WING = 0;
+	VT_HELICOPTER = 1;
+	VT_MULTICOPTER = 2;
+	VT_VTOL = 3;
+}
+
+enum VehicleSource {
+	VS_VSM = 0;
+	VS_IMPORT = 1;
+}
+
+enum VehicleParameterType {
+	VPT_HEIGHT = 0;
+	VPT_WIDTH = 1;
+	VPT_LENGTH = 2;
+	VPT_MAX_CLIMB_RATE = 3;
+	VPT_MAX_HORIZONTAL_SPEED = 4;
+	VPT_MAX_ALTITUDE = 5;
+	VPT_MAX_WAYPOINTS = 6;
+	VPT_MAX_FLIGHT_TIME = 7;
+	VPT_WIND_RESISTANCE = 8;
+	VPT_DRY_TAKEOFF_WEIGHT = 9;
+	VPT_MAX_TAKEOFF_WEIGHT = 10;
+	VPT_BATTERY_WEIGHT = 11;
+	VPT_CHARGED_BATTERY_VOLTAGE = 12;
+	VPT_DISCHARGED_BATTERY_VOLTAGE = 13;
+	VPT_NORMAL_BATTERY_VOLTAGE = 14;
+	VPT_LOW_BATTERY_VOLTAGE = 15;
+	VPT_LOW_GPS_SATELLITES = 16;
+	VPT_NORMAL_GPS_SATELLITES = 17;
+	VPT_SAFE_DISTANCE_TO_TERRAIN = 18;
+	VPT_SAFE_DISTANCE_TO_OBSTACLE = 19;
+	VPT_WAYPOINT_ACCEPTANCE_RADIUS = 20;
+	VPT_FENCE_RADIUS = 21;
+	VPT_LOW_TELEMETRY_LEVEL = 22;
+	VPT_NORMAL_TELEMETRY_LEVEL = 23;
+	VPT_DEFAULT_CLIMB_RATE = 24;
+	VPT_DEFAULT_DESCENT_RATE = 25;
+	VPT_GLIDE_SLOPE = 26;
+	VPT_DEFAULT_HORIZONTAL_SPEED = 27;
+	VPT_LANDING_GROUND_SPEED = 28;
+	VPT_MAX_ALTITUDE_AGL = 29;
+	VPT_LANDING_FLARE_ALTITUDE = 30;
+	VPT_LANDING_FLARE_TIME = 31;
+	VPT_MIN_LANDING_PITCH = 32;
+	VPT_LANDING_FLARE_DAMP = 33;
+	VPT_LANDING_APPROACH_AIRSPEED = 34;
+	VPT_LANDING_SPEED_WEIGHTING = 35;
+	VPT_MAX_AUTO_FLIGHT_PITCH = 36;
+	VPT_MAX_PITCH = 37;
+	VPT_MIN_THROTTLE = 38;
+	VPT_LANDING_SINK_RATE = 39;
+	VPT_LANDING_RANGEFINDER_ENABLED = 40;
+	VPT_MIN_RANGEFINDER_DISTANCE = 41;
+	VPT_MAX_DESCENT_RATE = 42;
+	VPT_LOW_BATTERY_POWER_LEVEL = 43;
+	VPT_NORMAL_BATTERY_POWER_LEVEL = 44;
+	VPT_MAX_RANGEFINDER_DISTANCE = 45;
+}
+
+enum PayloadType {
+	PT_CAMERA = 0;
+	PT_DATA_LINK = 1;
+}
+
+enum PayloadParameterType {
+	PPT_WEIGHT = 0;
+	PPT_FREQUENCY = 1;
+	PPT_POWER = 2;
+	PPT_TRUE_FOCAL_LENGTH = 3;
+	PPT_SENSOR_WIDTH = 4;
+	PPT_SENSOR_HEIGHT = 5;
+	PPT_SENSOR_HORIZONTAL_PIXELS = 6;
+	PPT_SENSOR_VERTICAL_PIXELS = 7;
+	PPT_MIN_TRIGGERING_INTERVAL = 8;
+}
+
+enum SeverityLevel {
+	SL_EMERGENCY = 0;
+	SL_ALERT = 1;
+	SL_CRITICAL = 2;
+	SL_ERROR = 3;
+	SL_WARNING = 4;
+	SL_NOTICE = 5;
+	SL_INFORMATIONAL = 6;
+	SL_DEBUG = 7;
+}
+
+enum TrajectoryType {
+	TT_STRAIGHT = 0;
+	TT_STAIR = 1;
+}
+
+enum FailsafeReason {
+	FR_RC_LOST = 0;
+	FR_GPS_LOST = 1;
+	FR_LOW_BATTERY = 2;
+	FR_DATALINK_LOST = 3;
+}
+
+enum FailsafeAction {
+	FA_GO_HOME = 0;
+	FA_LAND = 1;
+	FA_WAIT = 2;
+	FA_CONTINUE = 3;
+	FA_NA = 4;
+}
+
+enum TriggerState {
+	TS_SINGLE_SHOT = 0;
+	TS_START_RECORDING = 1;
+	TS_STOP_RECORDING = 2;
+	TS_TOGGLE_RECORDING = 3;
+}
+
+enum PowerState {
+	PS_OFF = 0;
+	PS_ON = 1;
+	PS_TOGGLE = 2;
+}
+
+enum PoiMode {
+	PM_NONE = 0;
+	PM_LOCATION = 1;
+	PM_AUTO = 2;
+}
+
+enum PanoramaMode {
+	PM_PHOTO = 0;
+	PM_VIDEO = 1;
+}
+
+enum RotationDirection {
+	RD_CLOCKWISE = 0;
+	RD_COUNTERCLOCKWISE = 1;
+}
+
+enum IcaoAddressType {
+	IAT_REAL = 0;
+	IAT_ANONYMOUS = 1;
+}
+
+enum Component {
+	C_DATABASE = 0;
+	C_LICENSE = 1;
+}
+
+enum MetricUnit {
+	MU_NONE = 0;
+	MU_SECOND = 1;
+	MU_METRE = 2;
+	MU_KILOMETRE = 3;
+	MU_METREPERSECOND = 4;
+	MU_SQUAREMETRE = 5;
+	MU_KILOGRAMME = 6;
+	MU_CENTIMETRE = 7;
+	MU_HECTARE = 8;
+	MU_SQUAREKILOMETRE = 9;
+}
+
+enum MessageSeverity {
+	MS_ERROR = 0;
+	MS_WARNING = 1;
+	MS_INFORMATION = 2;
+}
+
+enum ConflictResolutionMode {
+	CRM_KEEP = 0;
+	CRM_REPLACE = 1;
+	CRM_MERGE = 2;
+}
+
+enum WaypointTurnType {
+	WTT_STOP_AND_TURN = 0;
+	WTT_STRAIGHT = 1;
+	WTT_SPLINE = 2;
+	WTT_BANK_TURN = 3;
+}
+
+enum ActionCode {
+	AC_WAYPOINT = 0;
+	AC_SPEED_CHANGE = 1;
+	AC_WAIT = 3;
+	AC_POI_CHANGE = 4;
+	AC_HEADING_CHANGE = 5;
+	AC_CAMERA_CONTROL = 6;
+	AC_CAMERA_TRIGGER = 7;
+	AC_CAMERA_SERIES_BY_TIME = 8;
+	AC_CAMERA_SERIES_BY_DISTANCE = 9;
+	AC_TAKEOFF = 10;
+	AC_LANDING = 11;
+	AC_PANORAMA = 12;
+	AC_ROUTE_ATTRIBUTES = 13;
+	AC_SET_SERVO = 14;
+	AC_REPEAT_SERVO = 15;
+	AC_TRANSITION_FIXED = 16;
+	AC_TRANSITION_VTOL = 17;
+}
+
+enum NfzType {
+	NT_CUSTOM = 0;
+	NT_AERODROME = 1;
+}
+
+enum EnvironmentEventType {
+	EET_NFZ_UPDATED = 0;
+	EET_ELEVATION_UPDATED = 1;
+	EET_FEATURE_UPDATED = 2;
+}
+
+enum FeatureType {
+	FT_STATIC_OBJECT = 0;
+	FT_PLACEMARK = 1;
+	FT_POLYLINE_PLACEMARK = 2;
+}
+
+enum UtmOperationStatus {
+	UOS_PROPOSING = 0;
+	UOS_ACCEPTED = 1;
+	UOS_REJECTED = 2;
+	UOS_READIED = 3;
+	UOS_ACTIVATED = 4;
+	UOS_CLOSED = 5;
+	UOS_EXPIRED = 6;
+	UOS_CANCELLED = 7;
+	UOS_NON_CONFORMING = 8;
+	UOS_ROGUE = 9;
+	UOS_MODIFYING = 10;
+	UOS_REQUESTING = 11;
+	UOS_ABORTING = 12;
+	UOS_ABORTED = 13;
+	UOS_INTRUDER = 14;
+}
+
+enum CommandStatus {
+	CS_REJECTED = 0;
+	CS_SENT = 1;
+	CS_SUCCEEDED = 2;
+	CS_FAILED = 3;
+}
+
+enum Subsystem {
+	S_CONTROL_SERVER = 0;
+	S_FLIGHT_CONTROLLER = 1;
+	S_GIMBAL = 2;
+	S_CAMERA = 3;
+	S_ADSB_TRANSPONDER = 4;
+	S_WINCH = 5;
+	S_HANGAR = 6;
+	S_USER = 7;
+	S_GPR = 8;
+	S_ADSB_RECEIVER = 9;
+	S_ADSB_VEHICLE = 10;
+	S_WEATHER_STATION = 11;
+}
+
+enum Semantic {
+	S_DEFAULT = 1;
+	S_LATITUDE = 2;
+	S_LONGITUDE = 3;
+	S_ALTITUDE_AMSL = 4;
+	S_ALTITUDE_AGL = 5;
+	S_ALTITUDE_RAW = 6;
+	S_HEADING = 7;
+	S_VOLTAGE = 8;
+	S_AIR_SPEED = 9;
+	S_GROUND_SPEED = 10;
+	S_VERTICAL_SPEED = 11;
+	S_SATELLITE_COUNT = 12;
+	S_GPS_FIX_TYPE = 13;
+	S_ROLL = 14;
+	S_PITCH = 15;
+	S_YAW = 16;
+	S_RC_LINK_QUALITY = 17;
+	S_CURRENT = 18;
+	S_GCS_LINK_QUALITY = 19;
+	S_FOV_H = 20;
+	S_FOV_V = 21;
+	S_CONTROL_MODE = 22;
+	S_GROUND_ELEVATION = 23;
+	S_ACCEPTANCE_RADIUS = 24;
+	S_LOITER_RADIUS = 25;
+	S_ICAO = 26;
+	S_ADSB_MODE = 27;
+	S_SQUAWK = 28;
+	S_MILLISECONDS = 29;
+	S_NUMERIC = 30;
+	S_BOOL = 31;
+	S_STRING = 32;
+	S_ENUM = 33;
+	S_CAPACITY_LEVEL = 34;
+	S_FLIGHT_MODE = 35;
+	S_LIST = 36;
+	S_AUTOPILOT_STATUS = 37;
+	S_TEMPERATURE = 40;
+	S_HUMIDITY = 41;
+	S_PRECIPITATION = 42;
+	S_TIMESTAMP = 38;
+	S_ANY = 39;
+}
+
+//*****************************************************************************
+// Generic CRUD services
+//*****************************************************************************
+
+// This object is a container for other domain objects that are handled by the
+// generic CRUD service. The DOM type must be included here if it is assumed
+// that objects of this type will be created / written / read / deleted using
+// the generic CRUD-service (see CreateOrUpdateObject..., GetObject..., etc.)
+//
+message DomainObjectWrapper {
+	optional Action action = 1;
+	optional ActionDefinition actionDefinition = 2;
+	optional AdsbAircraft adsbAircraft = 3;
+	optional CameraControl cameraControl = 5;
+	optional CameraControlDefinition cameraControlDefinition = 6;
+	optional CameraTrigger cameraTrigger = 7;
+	optional CameraTriggerDefinition cameraTriggerDefinition = 8;
+	optional CommandDefinition commandDefinition = 9;
+	optional Figure figure = 10;
+	optional FigureParameter figureParameter = 11;
+	optional FigurePoint figurePoint = 12;
+	optional HeadingChange headingChange = 13;
+	optional HeadingDefinition headingDefinition = 14;
+	optional Landing landing = 16;
+	optional License license = 18;
+	optional Mission mission = 19;
+	optional MissionPreference missionPreference = 21;
+	optional MissionVehicle missionVehicle = 22;
+	optional NoFlightZone noFlightZone = 25;
+	optional Panorama panorama = 26;
+	optional PanoramaDefinition panoramaDefinition = 27;
+	optional ParameterDefinition parameterDefinition = 28;
+	optional ParameterValue parameterValue = 29;
+	optional PayloadParameter payloadParameter = 30;
+	optional PayloadProfile payloadProfile = 31;
+	optional Platform platform = 32;
+	optional PlatformPayloadProfile platformPayloadProfile = 33;
+	optional PoiChange poiChange = 36;
+	optional PoiDefinition poiDefinition = 37;
+	optional Prism prism = 38;
+	optional PolygonPoint polygonPoint = 39;
+	optional ProcessedRoute processedRoute = 40;
+	optional Route route = 41;
+	optional SegmentDefinition segmentDefinition = 42;
+	optional SpeedChange speedChange = 44;
+	optional Takeoff takeoff = 45;
+	optional TraverseAlgorithm traverseAlgorithm = 47;
+	optional User user = 48;
+	optional Vehicle vehicle = 49;
+	optional VehicleLogEntry vehicleLogEntry = 51;
+	optional VehicleParameter vehicleParameter = 52;
+	optional VehicleProfile vehicleProfile = 53;
+	optional VehicleProfilePayloadProfile vehicleProfilePayloadProfile = 54;
+	optional Vsm vsm = 55;
+	optional Wait wait = 57;
+	optional WaitDefinition waitDefinition = 58;
+	optional Waypoint waypoint = 59;
+	optional MessageSet messageSet = 60;
+	optional LocalizedMessage localizedMessage = 61;
+	optional LocalizedMessageVariant localizedMessageVariant = 62;
+	optional TelemetryInterval telemetryInterval = 63;
+	optional ElevationSource elevationSource = 67;
+	optional GeoServer geoServer = 68;
+	optional CameraSeriesByDistance cameraSeriesByDistance = 69;
+	optional CameraSeriesByDistanceDefinition cameraSeriesByDistanceDefinition = 70;
+	optional CameraSeriesByTime cameraSeriesByTime = 71;
+	optional CameraSeriesByTimeDefinition cameraSeriesByTimeDefinition = 72;
+	optional PlatformAction platformAction = 73;
+	optional FeatureSource featureSource = 74;
+	optional UtmOperation utmOperation = 76;
+	optional CommandArgumentDefinition commandArgumentDefinition = 77;
+	optional Failsafe failsafe = 78;
+	optional ProcessedSegment processedSegment = 79;
+	optional RouteAttributes routeAttributes = 80;
+	optional Value value = 81;
+	optional SetServo setServo = 82;
+	optional RepeatServo repeatServo = 83;
+	optional TransitionFixed transitionFixed = 84;
+    optional TransitionVtol transitionVtol = 85;
+	optional RouteUpload routeUpload = 86;
+	optional RoutePass routePass = 87;
+}
+
+//*****************************************************************************
+// Types
+//*****************************************************************************
+
+// Doesn't contain version field as not a part of domain
+message Version {
+	optional int32 id = 1;
+	optional int32 major = 2;
+	optional int32 minor = 3;
+	optional int32 build = 5;
+	optional Component component = 4;
+}
+
+message License {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string type = 3;
+	optional string activationCode = 4;
+	optional int64 activationTime = 5 [(ugcs_field_posix_time) = true];
+	optional string tag = 6;
+	optional int64 subscriptionExpirationTime = 7 [(ugcs_field_posix_time) = true];
+	optional int64 supportExpirationTime = 8 [(ugcs_field_posix_time) = true];
+}
+
+
+//-- Authorization / Authentication / Preferences -----------------------------
+
+message User {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string login = 3;
+	optional string password = 4;
+	optional UserRole role = 5;
+	optional string tag = 6;
+	repeated MissionPreference missionPreferences = 7;
+}
+
+message MissionPreference {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional User user = 3;
+	optional Mission mission = 4;
+	optional string name = 5;
+	optional string value = 6;
+	optional string tag = 7;
+}
+
+
+//-- Definitions of Platform, Vehicle, and other sys. references --------------
+
+message Vsm {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string name = 3;
+	optional string host = 4;
+	optional int32 port = 5;
+	optional string protocol = 6;
+	optional string tag = 8;
+}
+
+message Platform {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string code = 3;
+	optional string name = 4;
+	optional string alias = 5;
+	repeated PlatformAction actions = 6;
+	repeated VehicleProfile vehicleProfiles = 8;
+	repeated PlatformPayloadProfile payloadProfiles = 9;
+	optional string tag = 10;
+}
+
+message PlatformAction {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional Platform platform = 3;
+	optional ActionCode actionCode = 4;
+	optional string tag = 5;
+}
+
+message PlatformPayloadProfile {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional Platform platform = 3;
+	optional PayloadProfile payloadProfile = 4;
+	optional string tag = 5;
+}
+
+message Vehicle {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional int64 vehicleId = 3;
+	optional string name = 5;
+	optional string tailNumber = 6;
+	optional VehicleType type = 7;
+	optional double altitudeOrigin = 13;
+	optional Platform platform = 15;
+	optional VehicleProfile profile = 16;
+	optional string tag = 17;
+	optional bool emulator = 18;
+	optional int32 icaoAddress = 23;
+	repeated AdsbAircraft adsbAircrafts = 24;
+	optional string serialNumber = 25;
+	optional string port = 26;
+	optional VehicleSource source = 27;
+}
+
+message AdsbAircraft {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional int32 icaoAddress = 3;
+	optional IcaoAddressType icaoAddressType = 4;
+	optional int64 updateTime = 5 [(ugcs_field_posix_time) = true];
+	optional string identification = 6;
+	optional double latitude = 7;
+	optional double longitude = 8;
+	optional double mslAltitude = 9;
+	optional double heading = 10;
+	optional double groundSpeed = 11;
+	optional double verticalVelocity = 12;
+	optional string tag = 13;
+	optional string registration = 14;
+	optional Vehicle vehicle = 15;
+}
+
+message VehicleProfilePayloadProfile {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional VehicleProfile vehicleProfile = 3;
+	optional PayloadProfile payloadProfile = 4;
+	optional string tag = 5;
+}
+
+message VehicleProfile {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string name = 3;
+	optional VehicleType vehicleType = 4;
+	repeated VehicleParameter parameters = 6;
+	repeated VehicleProfilePayloadProfile payloadProfiles = 7;
+	optional Platform platform = 8;
+	optional bool sealed = 9;
+	optional bool unremovable = 10;
+	optional string tag = 11;
+	optional bool primary = 12;
+	optional string modelKey = 13;
+	optional string imageKey = 14;
+}
+
+message VehicleParameter {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double value = 3;
+	optional VehicleProfile vehicleProfile = 4;
+	optional VehicleParameterType type = 5;
+	optional string tag = 6;
+}
+
+message PayloadProfile {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string name = 3;
+	optional PayloadType payloadType = 4;
+	optional string imageKey = 5;
+	repeated PayloadParameter parameters = 7;
+	repeated PlatformPayloadProfile platforms = 8;
+	optional bool sealed = 9;
+	optional bool unremovable = 10;
+	optional string tag = 11;
+}
+
+message PayloadParameter {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double value = 3;
+	optional PayloadProfile payloadProfile = 4;
+	optional PayloadParameterType type = 5;
+	optional string tag = 6;
+}
+
+// Definitions of algorithms in the system
+message TraverseAlgorithm {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string name = 4;
+	optional string implementationClass = 5;
+	optional bool selectFigure = 6;
+	optional FigureType figureType = 7;
+	repeated ParameterDefinition parameterDefinitions = 9;
+	optional string tag = 10;
+	optional string code = 11;
+}
+
+// Definitions of algorithms' parameters. The actual values are stored in
+// ParameterValue; referenced to the corresponded definitions by its name.
+message ParameterDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string name = 4;
+	optional string description = 5;
+	optional ParameterType type = 6;
+	optional bool mandatory = 7;
+	optional string defaultValue = 8;
+	optional string validationRegex = 9;
+	optional TraverseAlgorithm algorithm = 10;
+	optional MetricUnit unit = 11;
+	optional string tag = 12;
+}
+
+
+//-- The data of objects on the map -------------------------------------------
+
+message Prism {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string tag = 3;
+	repeated PolygonPoint points = 4;
+	optional AltitudeType altitudeType = 5;
+	optional double baseAltitude = 6;
+	optional double height = 7;
+}
+
+message PolygonPoint {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string tag = 3;
+	optional Prism prism = 5;
+	optional double latitude = 6;
+	optional double longitude = 7;
+}
+
+message Figure {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional FigureType type = 3;
+	repeated FigurePoint points = 4;
+	repeated FigureParameter parameters = 5;
+	optional string tag = 6;
+}
+
+message FigureParameter {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double value = 4;
+	optional Figure figure = 5;
+	optional string tag = 6;
+}
+
+message FigurePoint {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double latitude = 4;
+	optional double longitude = 5;
+	optional double wgs84Altitude = 6;
+	optional double aglAltitude = 7;
+	optional AltitudeType altitudeType = 8;
+	optional Figure figure = 9;
+	optional string tag = 10;
+}
+
+
+//-- Route, the definition of -------------------------------------------------
+
+message Mission {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string name = 3;
+	optional string description = 4;
+	optional int64 creationTime = 5 [(ugcs_field_posix_time) = true];
+	repeated Route routes = 6;
+	optional User owner = 7;
+	repeated MissionVehicle vehicles = 8;
+	optional string tag = 9;
+}
+
+message MissionVehicle {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional Mission mission = 3;
+	optional Vehicle vehicle = 4;
+	optional string tag = 5;
+}
+
+message Route {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string uuid = 3 [(ugcs_field_uuid) = true];
+	optional string name = 4;
+	optional int64 creationTime = 5 [(ugcs_field_posix_time) = true];
+	optional int64 scheduledTime = 6 [(ugcs_field_posix_time) = true];
+	optional Mission mission = 7;
+	repeated SegmentDefinition segments = 8;
+	optional TrajectoryType trajectoryType = 10;
+	optional double safeAltitude = 11;
+	optional double maxAltitude = 12;
+	optional double initialSpeed = 13;
+	optional double maxSpeed = 14;
+	repeated Failsafe failsafes = 20;
+	optional VehicleProfile vehicleProfile = 21;
+	optional string tag = 22;
+	optional bool checkAerodromeNfz = 23;
+	optional bool checkCustomNfz = 24;
+	optional string modificationUuid = 25 [(ugcs_field_uuid) = true];
+	optional double startDelay = 26;
+	optional double takeoffHeight = 27;
+}
+
+message RouteUpload {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional Route route = 3;
+	optional string routeModificationUuid = 4 [(ugcs_field_uuid) = true];
+	optional Vehicle vehicle = 5;
+	optional User user = 6;
+	optional int64 uploadTime = 7 [(ugcs_field_posix_time) = true];
+	optional string tag = 8;
+}
+
+// tracks a route execution by the vehicle
+// RoutePass is created on a route upload and removed after
+// it is fully processed
+message RoutePass {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional Route route = 3;
+	optional Vehicle vehicle = 4;
+	optional int64 uploadTime = 5 [(ugcs_field_posix_time) = true];
+	// waypoint index in the original route that was reached last during
+	// the current pass (zero-based)
+	optional int32 waypointIndex = 6;
+	// WGS84 coordinates of the vehicle within the route trajectory
+	optional double latitude = 7;
+	optional double longitude = 8;
+	optional double altitude = 9;
+	optional string routeModificationUuid = 10 [(ugcs_field_uuid) = true];
+	// total number of waypoints in the original route
+	optional int32 waypointCount = 11;
+	optional string tag = 12;
+}
+
+message Failsafe {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional Route route = 3;
+	optional FailsafeReason reason = 4;
+	optional FailsafeAction action = 5;
+	optional string tag = 6;
+}
+
+message SegmentDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string uuid = 3 [(ugcs_field_uuid) = true];
+	optional Route route = 5;
+	// Algorithm and parameters, and specified actions:
+	optional string algorithmClassName = 6; // == TraverseAlgorithm.implementationClass
+	optional Figure figure = 8;
+	repeated ParameterValue parameterValues = 10;
+	repeated ActionDefinition actionDefinitions = 11;
+	optional string tag = 12;
+	optional string modificationUuid = 13 [(ugcs_field_uuid) = true];
+}
+
+message ParameterValue {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string name = 3;
+	optional string value = 4;
+	optional SegmentDefinition segmentDefinition = 5;
+	optional string tag = 6;
+}
+
+//-- Route, the processed data ------------------------------------------------
+
+message ProcessedRoute {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional Route route = 3;
+	repeated ProcessedSegment segments = 4;
+	optional string tag = 6;
+	optional string uuid = 7 [(ugcs_field_uuid) = true]; // Route.uuid
+	optional string modificationUuid = 8 [(ugcs_field_uuid) = true]; // Route.modificationUuid
+}
+
+message ProcessedSegment {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string uuid = 3 [(ugcs_field_uuid) = true]; // SegmentDefinition.uuid
+	// Result of processing:
+	optional RouteProcessingStatus status = 4;
+	optional double estimatedDistance = 5;
+	optional double estimatedTime = 6;
+	optional int32 wrongPointNumber = 7;
+	optional MessageSet messageSet = 8;
+	// Sets of actions (commands) for vehicle:
+	repeated Action segmentActions = 9; // for segment itself;
+	repeated Action connectionActions = 10; // for nextcoming connection to the next segment;
+	repeated Action optimizedActions = 11; //
+	optional string tag = 12;
+	optional string modificationUuid = 13 [(ugcs_field_uuid) = true]; // SegmentDefinition.modificationUuid
+	optional string algorithmCode = 14;
+	optional double autoDirectionAngle = 15;
+}
+
+message MessageSet {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	repeated LocalizedMessage messages = 3;
+	optional string tag = 4;
+}
+
+message LocalizedMessage {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional MessageSet messageSet = 4;
+	optional MessageSeverity severity = 5;
+	optional string defaultText = 6;
+	repeated LocalizedMessageVariant variants = 7;
+	optional string tag = 8;
+}
+
+message LocalizedMessageVariant {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional LocalizedMessage message = 4;
+	optional string localeId = 5;
+	optional string messageText = 6;
+	optional string tag = 7;
+}
+
+//-- Actions: the container and specific actions data -------------------------
+
+// The actions here are internal generic representation of the commands, for
+// all devices. The object "Action" is the container, other specific represent
+// the specific command with specific data. Actions are the result of the route
+// processing.
+
+message Action {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional ObjectOrigin origin = 4;
+	optional ProcessedRoute processedSegment = 5;
+	optional ProcessedRoute processedConnection = 6;
+	optional ProcessedRoute optimizedRoute = 7;
+	optional Waypoint waypoint = 8;
+	optional SpeedChange speedChange = 9;
+	optional Wait wait = 11;
+	optional PoiChange poiChange = 12;
+	optional HeadingChange headingChange = 13;
+	optional CameraControl cameraControl = 14;
+	optional CameraTrigger cameraTrigger = 15;
+	optional CameraSeriesByTime cameraSeriesByTime = 16;
+	optional CameraSeriesByDistance cameraSeriesByDistance = 17;
+	optional Takeoff takeoff = 18;
+	optional Landing landing = 19;
+	optional Panorama panorama = 20;
+	optional RouteAttributes routeAttributes = 22;
+    optional SetServo setServo = 23;
+    optional RepeatServo repeatServo = 24;
+    optional TransitionVtol transitionVtol = 26;
+    optional TransitionFixed transitionFixed = 27;
+	optional string tag = 21;
+	optional double estimatedTime = 25;
+}
+
+message Waypoint {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double latitude = 3;
+	optional double longitude = 4;
+	optional double wgs84Altitude = 5;
+	optional double elevation = 6;
+	optional double heading = 7;
+	optional double acceptanceRadius = 8;
+	optional WaypointTurnType turnType = 9;
+	optional AltitudeFrame altitudeFrame = 11;
+	optional string tag = 10;
+}
+
+message CameraControl {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double tilt = 3;
+	optional double roll = 4;
+	optional double yaw = 5;
+	optional int32 zoomLevel = 6;
+	optional string tag = 7;
+}
+
+message CameraTrigger {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional TriggerState state = 3;
+	optional string tag = 5;
+}
+
+message CameraSeriesByTime {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double interval = 3;
+	optional int32 shotsNumber = 4;
+	optional double startDelay = 5;
+	optional bool autoCalc = 7;
+	optional string tag = 6;
+}
+
+message CameraSeriesByDistance {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double interval = 3;
+	optional int32 shotsNumber = 4;
+	optional double startDelay = 5;
+	optional bool autoCalc = 7;
+	optional string tag = 6;
+}
+
+message Wait {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double interval = 3;
+	optional int64 scheduledTime = 7 [(ugcs_field_posix_time) = true];
+	optional bool waitForOperator = 4;
+	optional bool waitForInstant = 6;
+	optional string tag = 5;
+}
+
+message HeadingChange {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double heading = 3;
+	optional bool relativeToNextWaypoint = 4;
+	optional bool relativeToNorth = 5;
+	optional string tag = 6;
+}
+
+message PoiChange {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional PoiMode mode = 3;
+	optional double latitude = 4;
+	optional double longitude = 5;
+	optional double wgs84Altitude = 6;
+	optional string tag = 7;
+}
+
+message SpeedChange {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double groundSpeed = 3;
+	optional double rateOfClimb = 4;
+	optional string tag = 5;
+}
+
+message Takeoff {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double acceptanceRadius = 3;
+	optional double rateOfClimb = 4;
+	optional double latitude = 5;
+	optional double longitude = 6;
+	optional double wgs84Altitude = 7;
+	optional double elevation = 8;
+	optional string tag = 9;
+}
+
+message Landing {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double acceptanceRadius = 3;
+	optional double rateOfDescent = 4;
+	optional double latitude = 5;
+	optional double longitude = 6;
+	optional double wgs84Altitude = 7;
+	optional double elevation = 8;
+	optional string tag = 9;
+}
+
+message Panorama {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double angle = 3;
+	optional double stepAngle = 4;
+	optional double stepDelay = 5;
+	optional RotationDirection rotationDirection = 6;
+	optional double rotationSpeed = 7;
+	optional PanoramaMode panoramaMode = 8;
+	optional string tag = 9;
+}
+
+message RouteAttributes {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double safeAltitude = 3;
+	optional FailsafeAction rcLostAction = 4;
+	optional FailsafeAction gpsLostAction = 5;
+	optional FailsafeAction lowBatteryAction = 6;
+	optional FailsafeAction datalinkLostAction = 7;
+	optional string tag = 8;
+}
+
+message SetServo {
+    optional int32 id = 1;
+    optional int32 version = 2;
+	optional int32 servoId = 3;
+    optional int32 pwm = 4;
+	optional string tag = 5;
+}
+
+message RepeatServo {
+    optional int32 id = 1;
+    optional int32 version = 2;
+    optional int32 servoId = 3;
+    optional int32 pwm = 4;
+    optional double delay = 5;
+    optional int32 count = 6;
+	optional string tag = 7;
+}
+
+message TransitionFixed {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string tag = 3;
+}
+
+message TransitionVtol {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string tag = 3;
+}
+
+
+//-- Definitions of Actions - Container and specific definitions --------------
+
+message ActionDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string uuid = 3 [(ugcs_field_uuid) = true];
+	optional SegmentDefinition segmentDefinition = 5;
+	optional WaitDefinition waitDefinition = 6;
+	optional PoiDefinition poiDefinition = 7;
+	optional HeadingDefinition headingDefinition = 8;
+	optional CameraControlDefinition cameraControlDefinition = 9;
+	optional CameraTriggerDefinition cameraTriggerDefinition = 10;
+	optional CameraSeriesByTimeDefinition cameraSeriesByTimeDefinition = 11;
+	optional CameraSeriesByDistanceDefinition cameraSeriesByDistanceDefinition = 12;
+	optional PanoramaDefinition panoramaDefinition = 13;
+	optional SetServoDefinition setServoDefinition = 14;
+	optional RepeatServoDefinition repeatServoDefinition = 15;
+    optional TransitionVtolDefinition transitionVtolDefinition =  17;
+	optional TransitionFixedDefinition transitionFixedDefinition = 18;
+	optional string tag = 16;
+}
+
+message CameraControlDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double tilt = 3;
+	optional double roll = 4;
+	optional double yaw = 5;
+	optional int32 zoomLevel = 6;
+	optional string tag = 7;
+}
+
+message CameraTriggerDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional TriggerState state = 3;
+	optional string tag = 5;
+}
+
+message CameraSeriesByTimeDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double interval = 4;
+	optional int32 shotsNumber = 5;
+	optional double startDelay = 6;
+	optional bool autoCalc = 7;
+	optional string tag = 8;
+}
+
+message CameraSeriesByDistanceDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double interval = 4;
+	optional int32 shotsNumber = 5;
+	optional double startDelay = 6;
+	optional bool autoCalc = 7;
+	optional string tag = 8;
+}
+
+message HeadingDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double heading = 3;
+	optional bool relativeToNextWaypoint = 4;
+	optional bool relativeToNorth = 5;
+	optional string tag = 6;
+}
+
+message PoiDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional PoiMode mode = 3;
+	optional double latitude = 4;
+	optional double longitude = 5;
+	optional double wgs84Altitude = 6;
+	optional double aglAltitude = 7;
+	optional AltitudeType altitudeType = 8;
+	optional string tag = 9;
+}
+
+message WaitDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double interval = 3;
+	optional bool waitForOperator = 4;
+	optional bool waitForInstant = 6;
+	optional string tag = 5;
+}
+
+message PanoramaDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional double angle = 3;
+	optional double stepAngle = 4;
+	optional double stepDelay = 5;
+	optional RotationDirection rotationDirection = 6;
+	optional double rotationSpeed = 7;
+	optional PanoramaMode panoramaMode = 8;
+	optional string tag = 9;
+}
+
+message SetServoDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional int32 servoId = 3;
+	optional int32 pwm = 4;
+	optional string tag = 5;
+}
+
+message RepeatServoDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional int32 servoId = 3;
+	optional int32 pwm = 4;
+	optional double delay = 5;
+	optional int32 count = 6;
+	optional string tag = 7;
+}
+
+message TransitionFixedDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string tag = 3;
+}
+
+message TransitionVtolDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string tag = 3;
+}
+
+//-- No-Flight Zones ----------------------------------------------------------
+
+message NoFlightZone {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string tag = 3;
+	/* Common characteristics */
+	optional string name = 4;
+	optional NfzType type = 5;
+	optional bool sealed = 6;
+	/* Definition of the volume */
+	optional Prism prism = 7;
+	optional ConeFrustum coneFrustum = 8;
+}
+
+message ConeFrustum {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string tag = 3;
+	optional double topRadius = 4;
+	optional double baseRadius = 5;
+	optional double baseLatitude = 6;
+	optional double baseLongitude = 7;
+	optional AltitudeType altitudeType = 8;
+	optional double baseAltitude = 9;
+	optional double height = 10;
+}
+
+
+//-- Commands -----------------------------------------------------------------
+
+message CommandDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string code = 3;
+	optional string name = 4;
+	repeated CommandArgumentDefinition arguments = 5;
+	optional string tag = 6;
+	optional Subsystem subsystem = 7;
+	optional int32 subsystemId = 8;
+	optional Vehicle vehicle = 9;
+	optional bool enabled = 10;
+	optional bool available = 11;
+}
+
+message CommandArgumentDefinition {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional CommandDefinition command = 11;
+	optional string code = 13;
+	optional Semantic semantic = 14;
+	optional Value defaultValue = 15;
+	optional Value minValue = 16;
+	optional Value maxValue = 17;
+	optional string tag = 12;
+}
+
+message Command {
+	optional string code = 1;
+	optional Subsystem subsystem = 6;
+	optional int32 subsystemId = 7;
+	repeated CommandArgument arguments = 2;
+	optional bool silent = 3;
+	optional bool resultIndifferent = 4;
+	optional bool forced = 5;
+}
+
+message CommandArgument {
+	optional string code = 1;
+	optional Value value = 2;
+}
+
+message Value {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional bool boolValue = 3;
+	optional int32 intValue = 4;
+	optional int64 longValue = 5;
+	optional float floatValue = 6;
+	optional double doubleValue = 7;
+	optional string stringValue = 8;
+	repeated Value listValue = 10;
+	optional string tag = 9;
+}
+
+//-- Logs ---------------------------------------------------------------------
+
+message VehicleLogEntry {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional int64 time = 3 [(ugcs_field_posix_time) = true];
+	optional Vehicle vehicle = 4;
+	optional string message = 5;
+	optional SeverityLevel level = 6;
+	optional string tag = 12;
+}
+
+//-- Telemetry ----------------------------------------------------------------
+
+message TelemetryInterval {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string name = 3;
+	optional int64 beginningTime = 4 [(ugcs_field_posix_time) = true];
+	optional int64 endTime = 5 [(ugcs_field_posix_time) = true];
+	optional string tag = 7;
+}
+
+message Telemetry {
+	optional Value value = 1;
+	optional int64 time = 2 [(ugcs_field_posix_time) = true];
+	optional TelemetryField telemetryField = 3;
+}
+
+message TelemetryField {
+	optional int32 id = 1;
+	optional string code = 2;
+	optional Semantic semantic = 3;
+	optional Subsystem subsystem = 4;
+	optional int32 subsystemId = 5;
+}
+
+//-- GeoServer ----------------------------------------------------------------
+
+message ElevationSource {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional int32 order = 3;
+	optional GeoServer geoServer = 4;
+	optional string sourceName = 5;
+	optional string tag = 6;
+	optional bool enabled = 7;
+}
+
+message FeatureSource {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional GeoServer geoServer = 4;
+	optional string sourceName = 5;
+	optional FeatureType featureType = 6;
+	optional bool enabled = 7;
+	optional string tag = 8;
+}
+
+message GeoServer {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional string name = 3;
+	optional string uri = 4;
+	repeated ElevationSource elevationSources = 6;
+	repeated FeatureSource featureSources = 7;
+	optional string tag = 8;
+}
+
+message UtmOperation {
+	optional int32 id = 1;
+	optional int32 version = 2;
+	optional Vehicle vehicle = 3;
+	optional UtmOperationStatus status = 4;
+	optional string gufi = 5;
+	optional string flightNumber = 6;
+	optional int64 effectiveBeginningTime = 7 [(ugcs_field_posix_time) = true];
+	optional int64 effectiveEndTime = 8 [(ugcs_field_posix_time) = true];
+	optional string tag = 9;
+}
+
+//-- Activation Server ----------------------------------------------------------------
+message SubscriptionPlan {
+	optional string name = 1;
+	optional string code = 2;
+	optional int32 period = 3;
+	optional string periodUnit = 4;
+}
+
+//*****************************************************************************
+// Non-persistent types
+//*****************************************************************************
+
+message Lock {
+	optional string objectType = 1;
+	optional int32 objectId = 2;
+	optional User owner = 3;
+}
+
+message Selection {
+	optional string selectionId = 1;
+	repeated SelectionItem items = 2;
+}
+
+message SelectionItem {
+	optional string value = 1;
+	optional string description = 2;
+	optional bool markDefault = 3;
+}
+
+message TrackPoint {
+	optional int64 time = 1 [(ugcs_field_posix_time) = true];
+	optional double latitude = 2;
+	optional double longitude = 3;
+	optional double altitude = 4;
+	optional double elevation = 5;
+}
+
+message Track {
+	repeated TrackPoint points = 1;
+	optional double approximationThreshold = 2;
+}
+
+message VehicleTrack {
+	optional int32 id = 3;
+	optional Vehicle vehicle = 1 [(ugcs_field_id) = true];
+	optional Track track = 2;
+}
+
+//*****************************************************************************
+// Events
+//*****************************************************************************
+
+enum ModificationType {
+	option (ugcs_enum_package) = "com.ugcs.ucs.domain.event";
+	MT_CREATE = 0;
+	MT_UPDATE = 1;
+	MT_DELETE = 2;
+}
+
+message ObjectModificationEvent {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional ModificationType modificationType = 1;
+	optional string objectType = 2;
+	optional int32 objectId = 3;
+	optional DomainObjectWrapper object = 4;
+}
+
+message ObjectModificationSubscription {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional string objectType = 1;
+	optional int32 objectId = 2;
+}
+
+message EnvironmentEvent {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional double minLatitude = 1;
+	optional double minLongitude = 2;
+	optional double maxLatitude = 3;
+	optional double maxLongitude = 4;
+	optional EnvironmentEventType environmentEventType = 5;
+}
+
+message EnvironmentSubscription {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+}
+
+message LockEvent {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional string objectType = 1;
+	optional int32 objectId = 2;
+	optional Lock lock = 3;
+}
+
+message LockSubscription {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional string objectType = 1;
+	optional int32 objectId = 2;
+}
+
+message TelemetryEvent {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional Vehicle vehicle = 1;
+	repeated Telemetry telemetry = 3;
+}
+
+message TelemetrySubscription {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional Vehicle vehicle = 1;
+}
+
+message TelemetryRemovalEvent {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional Vehicle vehicle = 1;
+	optional int64 fromTime = 2 [(ugcs_field_posix_time) = true];
+	optional int64 toTime = 3 [(ugcs_field_posix_time) = true];
+}
+
+message TelemetryRemovalSubscription {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional Vehicle vehicle = 1;
+}
+
+message AdsbIndicatorEvent {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional bool on = 1;
+}
+
+message AdsbIndicatorSubscription {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+}
+
+message CommandEvent {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional Vehicle vehicle = 1;
+	repeated CommandDefinition commands = 2;
+}
+
+message CommandSubscription {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional Vehicle vehicle = 1;
+}
+
+message ProgressDto {
+	option (ugcs_class_name) = "Progress";
+	optional string title = 1;
+	optional int32 progress = 2;
+	optional int32 maxProgress = 3;
+}
+
+message ProgressStackDto {
+	option (ugcs_class_name) = "ProgressStack";
+	repeated ProgressDto progresses = 1;
+	optional string processKey = 2;
+}
+
+message ServerProgressEvent {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	repeated ProgressStackDto progressStacks = 1;
+}
+
+message ServerProgressSubscription {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+}
+
+message VehicleTrackEvent {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional VehicleTrack vehicleTrack = 1;
+}
+
+message VehicleTrackSubscription {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional Vehicle vehicle = 1;
+}
+
+message TelemetryBatchEvent {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	repeated VehicleTelemetry vehicleTelemetry = 1;
+}
+
+message VehicleTelemetry {
+	optional Vehicle vehicle = 1;
+	repeated Telemetry telemetry = 2;
+}
+
+message TelemetryBatchSubscription {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional int32 pollingPeriodMilliseconds = 1;
+	repeated Vehicle vehicles = 2;
+}
+
+message EventWrapper {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional ObjectModificationEvent objectModificationEvent = 1;
+	optional LockEvent lockEvent = 2;
+	optional TelemetryEvent telemetryEvent = 3;
+	optional TelemetryRemovalEvent telemetryRemovalEvent = 4;
+	optional AdsbIndicatorEvent adsbIndicatorEvent = 5;
+	optional ServerProgressEvent serverProgressEvent = 7;
+	optional VehicleTrackEvent vehicleTrackEvent = 8;
+	optional EnvironmentEvent environmentEvent = 9;
+	optional CommandEvent commandEvent = 10;
+	optional TelemetryBatchEvent telemetryBatchEvent = 11;
+}
+
+message EventSubscriptionWrapper {
+	option (ugcs_class_package) = "com.ugcs.ucs.domain.event";
+	optional ObjectModificationSubscription objectModificationSubscription = 1;
+	optional LockSubscription lockSubscription = 2;
+	optional TelemetrySubscription telemetrySubscription = 3;
+	optional TelemetryRemovalSubscription telemetryRemovalSubscription = 4;
+	optional AdsbIndicatorSubscription adsbIndicatorSubscription = 5;
+	optional ServerProgressSubscription serverProgressSubscription = 7;
+	optional VehicleTrackSubscription vehicleTrackSubscription = 8;
+	optional EnvironmentSubscription environmentSubscription = 9;
+	optional CommandSubscription commandSubscription = 10;
+	optional TelemetryBatchSubscription telemetryBatchSubscription = 11;
+}
+
+message InvalidTakeOffAltitudeDetail {
+	optional double recommendedAltitude = 1;
+}
+
+message ErrorDetailWrapper {
+	optional InvalidTakeOffAltitudeDetail invalidTakeOffAltitudeDetail = 1;
+}
