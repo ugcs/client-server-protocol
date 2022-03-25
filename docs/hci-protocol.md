@@ -1,4 +1,4 @@
-# Client protocol
+# HCI protocol
 
 ### Overview
 HCI protocol is an application level protocol. It is a stateful protocol used for mission planning.
@@ -33,12 +33,12 @@ Note: https://developers.google.com/protocol-buffers/
 Messages are described by two .proto files. Messages.proto file defines all possible message types and their structure, Domain.proto files defines structure of the domain types used in requests and responses.
 
 
-###Obtaining Client Identifier
+### Obtaining Client Identifier
 To create a new client session HCI should send an AuthorizeHciRequest message and set the clientId field value to -1. In this case UCS will create a new session object and return its identity as clientId field of the AuthorizeHciResponse message.
 
 Any HCI session should be associated with an authenticated user. To authenticate user client should provide its credentials via LoginRequest message.
 
 If client application wants to attach to an existing session, it should specify client id in a corresponding field.
 
-###Examples
+### Examples
 Examples on [UgCS GitHub](https://github.com/ugcs/ugcs-java-sdk/tree/master/ucs-client/src/main/java/com/ugcs/ucs/client/samples)
